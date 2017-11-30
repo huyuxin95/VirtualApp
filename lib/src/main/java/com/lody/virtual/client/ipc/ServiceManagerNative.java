@@ -33,7 +33,7 @@ public class ServiceManagerNative {
 
     private static IServiceFetcher sFetcher;
 
-    //获取Binder连接池在本地的引用
+    //获取Binder连接池入口在本地的引用
     private static IServiceFetcher getServiceFetcher() {
         if (sFetcher == null || !sFetcher.asBinder().isBinderAlive()) {
             synchronized (ServiceManagerNative.class) {
@@ -41,7 +41,9 @@ public class ServiceManagerNative {
                 //调用ContentProvider的call方法
                 Bundle response = new ProviderCall.Builder(context, SERVICE_CP_AUTH).methodName("@").call();
                 if (response != null) {
+                    //获取Binder连接池入口在本地的句柄
                     IBinder binder = BundleCompat.getBinder(response, "_VA_|_binder_");
+                    //设置死亡代理
                     linkBinderDied(binder);
                     sFetcher = IServiceFetcher.Stub.asInterface(binder);
                 }
@@ -72,6 +74,7 @@ public class ServiceManagerNative {
         }
     }
 
+    //名字作为索引,检索binder连接池中已hook的服务的ibinder对象
     public static IBinder getService(String name) {
         if (VirtualCore.get().isServerProcess()) {
             return ServiceCache.getService(name);
@@ -88,6 +91,7 @@ public class ServiceManagerNative {
         return null;
     }
 
+    //将服务的索引和ibinder对象通过连接池引用,添加到服务端的map中
     public static void addService(String name, IBinder service) {
         IServiceFetcher fetcher = getServiceFetcher();
         if (fetcher != null) {
@@ -97,9 +101,8 @@ public class ServiceManagerNative {
                 e.printStackTrace();
             }
         }
-
     }
-
+    //通过连接池引用,将服务从服务端的map中移除
     public static void removeService(String name) {
         IServiceFetcher fetcher = getServiceFetcher();
         if (fetcher != null) {

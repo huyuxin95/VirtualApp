@@ -29,6 +29,9 @@ import com.lody.virtual.server.vs.VirtualStorageService;
 
 /**
  * @author Lody
+ *
+ * 通过ContentProvider,模拟了服务端的ServiceManager.其进程名为packname:x
+ *
  */
 public final class BinderProvider extends ContentProvider {
 
@@ -37,7 +40,9 @@ public final class BinderProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         Context context = getContext();
+
         DaemonService.startup(context);
+
         if (!VirtualCore.get().isStartup()) {
             return true;
         }
