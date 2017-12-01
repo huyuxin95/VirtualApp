@@ -156,6 +156,12 @@ public class AppRepository implements AppDataSource {
         return VirtualCore.get().installPackage(info.path, flags);
     }
 
+    /**
+     *删除应用
+     * @param packageName
+     * @param userId
+     * @return
+     */
     @Override
     public boolean removeVirtualApp(String packageName, int userId) {
         return VirtualCore.get().uninstallPackageAsUser(packageName, userId);

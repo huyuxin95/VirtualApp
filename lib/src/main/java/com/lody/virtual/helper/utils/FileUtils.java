@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class FileUtils {
     /**
+     * 修改指定文件权限
      * @param path
      * @param mode {@link FileMode}
      * @throws Exception

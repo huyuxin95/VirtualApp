@@ -19,6 +19,8 @@ import mirror.android.os.ServiceManager;
 
 /**
  * @author Lody
+ * 这是一个工具转换类,将ibinder对象转换为IInterface对象,
+ * 或将IInterface对象转换为ibinder对象
  */
 @SuppressWarnings("unchecked")
 public class BinderInvocationStub extends MethodInvocationStub<IInterface> implements IBinder {

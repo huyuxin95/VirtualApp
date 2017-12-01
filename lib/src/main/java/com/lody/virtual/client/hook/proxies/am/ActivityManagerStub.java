@@ -35,17 +35,20 @@ import mirror.android.util.Singleton;
  * @author Lody
  * @see IActivityManager
  * @see android.app.ActivityManager
+ *
  */
 
 @Inject(MethodProxies.class)
 public class ActivityManagerStub extends MethodInvocationProxy<MethodInvocationStub<IInterface>> {
 
     public ActivityManagerStub() {
+        //这里初始化了动态代理模型,并hook了构造
         super(new MethodInvocationStub<>(ActivityManagerNative.getDefault.call()));
     }
 
     @Override
     public void inject() throws Throwable {
+        //根据不同版本获取到 activitymanager在客户端的引用
         if (BuildCompat.isOreo()) {
             //Android Oreo(8.X)
             Object singleton = ActivityManagerOreo.IActivityManagerSingleton.get();
@@ -58,6 +61,7 @@ public class ActivityManagerStub extends MethodInvocationProxy<MethodInvocationS
                 Singleton.mInstance.set(gDefault, getInvocationStub().getProxyInterface());
             }
         }
+        //获取IInterface对象转换为ibinder对象,并将其加入到ServiceManager的集合中
         BinderInvocationStub hookAMBinder = new BinderInvocationStub(getInvocationStub().getBaseInterface());
         hookAMBinder.copyMethodProxies(getInvocationStub());
         ServiceManager.sCache.get().put(Context.ACTIVITY_SERVICE, hookAMBinder);

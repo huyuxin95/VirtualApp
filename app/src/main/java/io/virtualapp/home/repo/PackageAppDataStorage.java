@@ -25,6 +25,11 @@ public class PackageAppDataStorage {
         return STORAGE;
     }
 
+    /**
+     * 根据packagename获取到安装包的信息
+     * @param packageName
+     * @return
+     */
     public PackageAppData acquire(String packageName) {
         PackageAppData data;
         synchronized (packageDataMap) {
@@ -42,6 +47,11 @@ public class PackageAppDataStorage {
                 .done(callback::callback);
     }
 
+    /**
+     * 获取安装包新的,并用Map<String, PackageAppData>  维护起来
+     * @param packageName
+     * @return
+     */
     private PackageAppData loadAppData(String packageName) {
         InstalledAppInfo setting = VirtualCore.get().getInstalledAppInfo(packageName, 0);
         if (setting != null) {

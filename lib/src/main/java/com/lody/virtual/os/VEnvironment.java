@@ -35,6 +35,9 @@ public class VEnvironment {
         DALVIK_CACHE_DIRECTORY = ensureCreated(new File(ROOT, "opt"));
     }
 
+    /**
+     * 将文件权限全部打开
+     */
     public static void systemReady() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             try {

@@ -53,6 +53,10 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
         }
     }
 
+    /**
+     * 启动App
+     * @param data
+     */
     @Override
     public void launchApp(AppData data) {
         try {
@@ -173,6 +177,10 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
         });
     }
 
+    /**
+     * 删除APP
+     * @param data
+     */
     @Override
     public void deleteApp(AppData data) {
         try {

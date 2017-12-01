@@ -336,6 +336,12 @@ public final class VirtualCore {
         return VActivityManager.get().isAppRunning(packageName, userId);
     }
 
+    /**
+     * 安装应用
+     * @param apkPath
+     * @param flags
+     * @return
+     */
     public InstallResult installPackage(String apkPath, int flags) {
         try {
             return getService().installPackage(apkPath, flags);
@@ -533,6 +539,12 @@ public final class VirtualCore {
         return isStartUp;
     }
 
+    /**
+     * 删除应用,支持多开应用
+     * @param pkgName
+     * @param userId
+     * @return
+     */
     public boolean uninstallPackageAsUser(String pkgName, int userId) {
         try {
             return getService().uninstallPackageAsUser(pkgName, userId);
@@ -542,6 +554,11 @@ public final class VirtualCore {
         return false;
     }
 
+    /**
+     *删除指定包名应用
+     * @param pkgName
+     * @return
+     */
     public boolean uninstallPackage(String pkgName) {
         try {
             return getService().uninstallPackage(pkgName);
@@ -551,6 +568,12 @@ public final class VirtualCore {
         return false;
     }
 
+    /**
+     * 将指定包下面的资源文件添加到AssetManager,通过已hook的AssetManager
+     * @param pkg
+     * @return
+     * @throws Resources.NotFoundException
+     */
     public Resources getResources(String pkg) throws Resources.NotFoundException {
         InstalledAppInfo installedAppInfo = getInstalledAppInfo(pkg, 0);
         if (installedAppInfo != null) {
@@ -689,6 +712,12 @@ public final class VirtualCore {
         }
     }
 
+    /**
+     * 安装应用
+     * @param userId
+     * @param packageName
+     * @return
+     */
     public boolean installPackageAsUser(int userId, String packageName) {
         try {
             return getService().installPackageAsUser(userId, packageName);

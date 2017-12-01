@@ -48,8 +48,8 @@ public class LoadingActivity extends VActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loading);
         loadingView = (EatBeansView) findViewById(R.id.loading_anim);
-        int userId = getIntent().getIntExtra(KEY_USER, -1);
-        String pkg = getIntent().getStringExtra(PKG_NAME_ARGUMENT);
+        int userId = getIntent().getIntExtra(KEY_USER, -1);  //用户ID  默认0
+        String pkg = getIntent().getStringExtra(PKG_NAME_ARGUMENT);   //packageName
         appModel = PackageAppDataStorage.get().acquire(pkg);
         ImageView iconView = (ImageView) findViewById(R.id.app_icon);
         iconView.setImageDrawable(appModel.icon);

@@ -23,6 +23,8 @@ import java.util.Map;
  *         and enabled for that method. If so, it calls the startUniformer instead of the wrapped implementation.
  *         <p>
  *         The whole thing is managed by a {@link MethodInvocationProxy} subclass
+ *         通过动态代理在构造中创建需要hook的对象,并传入需要hook的方法的集合
+ *         在HookInvocationHandler内统一处理,
  */
 @SuppressWarnings("unchecked")
 public class MethodInvocationStub<T> {
@@ -35,12 +37,19 @@ public class MethodInvocationStub<T> {
     private String mIdentityName;
     private LogInvocation.Condition mInvocationLoggingCondition = LogInvocation.Condition.NEVER;
 
-
+    /**
+     * 获取所有hook的方法
+     * @return
+     */
     public Map<String, MethodProxy> getAllHooks() {
         return mInternalMethodProxies;
     }
 
-
+    /**
+     * 创建代理对象
+     * @param baseInterface
+     * @param proxyInterfaces
+     */
     public MethodInvocationStub(T baseInterface, Class<?>... proxyInterfaces) {
         this.mBaseInterface = baseInterface;
         if (baseInterface != null) {
@@ -72,13 +81,14 @@ public class MethodInvocationStub<T> {
         return getClass().getSimpleName();
     }
 
+
     public MethodInvocationStub(T baseInterface) {
         this(baseInterface, (Class[]) null);
     }
 
     /**
      * Copy all proxies from the input HookDelegate.
-     *
+     *  从一个已创建的对象中copy已创建的代理方法集合
      * @param from the HookDelegate we copy from.
      */
     public void copyMethodProxies(MethodInvocationStub from) {
@@ -87,7 +97,7 @@ public class MethodInvocationStub<T> {
 
     /**
      * Add a method proxy.
-     *
+     *向map集合添加需要代理的方法
      * @param methodProxy proxy
      */
     public MethodProxy addMethodProxy(MethodProxy methodProxy) {
@@ -104,7 +114,7 @@ public class MethodInvocationStub<T> {
 
     /**
      * Remove a method proxy.
-     *
+     * 根据方法名为索引从需要代理的方法中移除指定方法
      * @param hookName proxy
      * @return The proxy you removed
      */
@@ -114,7 +124,7 @@ public class MethodInvocationStub<T> {
 
     /**
      * Remove a method proxy.
-     *
+     *根据方法代理对象为索引从需要代理的方法中移除指定方法
      * @param methodProxy target proxy
      */
     public void removeMethodProxy(MethodProxy methodProxy) {
@@ -125,6 +135,7 @@ public class MethodInvocationStub<T> {
 
     /**
      * Remove all method proxies.
+     * 清空全部需要代理的方法
      */
     public void removeAllMethodProxies() {
         mInternalMethodProxies.clear();
@@ -132,7 +143,7 @@ public class MethodInvocationStub<T> {
 
     /**
      * Get the startUniformer by its name.
-     *
+     * 利用泛型,根据方法名获取MethodProxy及其子类对象
      * @param name name of the Hook
      * @param <H>  Type of the Hook
      * @return target startUniformer
@@ -158,11 +169,15 @@ public class MethodInvocationStub<T> {
 
     /**
      * @return count of the hooks
+     * 代理的方法数
      */
     public int getMethodProxiesCount() {
         return mInternalMethodProxies.size();
     }
 
+    /**
+     * 代理对象方法的hook
+     */
     private class HookInvocationHandler implements InvocationHandler {
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -182,6 +197,7 @@ public class MethodInvocationStub<T> {
 
 
             try {
+                //hook 处理逻辑通过接口回调在实现类里处理
                 if (useProxy && methodProxy.beforeCall(mBaseInterface, method, args)) {
                     res = methodProxy.call(mBaseInterface, method, args);
                     res = methodProxy.afterCall(mBaseInterface, method, args, res);
@@ -212,7 +228,6 @@ public class MethodInvocationStub<T> {
                         } else {
                             retString = String.valueOf(res);
                         }
-
                         Log.println(logPriority, TAG, method.getDeclaringClass().getSimpleName() + "." + method.getName() + "(" + argStr + ") => " + retString);
                     }
                 }

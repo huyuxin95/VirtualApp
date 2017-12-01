@@ -175,6 +175,8 @@ public class HomeActivity extends VActivity implements HomeContract.HomeView {
         mLauncherView.addItemDecoration(new ItemOffsetDecoration(this, R.dimen.desktop_divider));
         ItemTouchHelper touchHelper = new ItemTouchHelper(new LauncherTouchCallback());
         touchHelper.attachToRecyclerView(mLauncherView);
+
+
         mLaunchpadAdapter.setAppClickListener((pos, data) -> {
             if (!data.isLoading()) {
                 if (data instanceof AddAppButton) {

@@ -20,6 +20,7 @@ import java.lang.reflect.Modifier;
  *         <p>
  *         All {@link MethodInvocationProxy}s (plus a couple of other @{@link IInjector}s are installed by
  *         {@link InvocationStubManager}
+ *         传入他的子类,在其构造中将其构造加入需要hook的集合
  * @see Inject
  */
 public abstract class MethodInvocationProxy<T extends MethodInvocationStub> implements IInjector {
@@ -38,10 +39,10 @@ public abstract class MethodInvocationProxy<T extends MethodInvocationStub> impl
     }
 
     protected void onBindMethods() {
-
         if (mInvocationStub == null) {
             return;
         }
+        //通过注解获取当前类及其内部类的类类型
         Class<? extends MethodInvocationProxy> clazz = getClass();
         Inject inject = clazz.getAnnotation(Inject.class);
         if (inject != null) {
@@ -51,6 +52,7 @@ public abstract class MethodInvocationProxy<T extends MethodInvocationStub> impl
                 if (!Modifier.isAbstract(innerClass.getModifiers())
                         && MethodProxy.class.isAssignableFrom(innerClass)
                         && innerClass.getAnnotation(SkipInject.class) == null) {
+
                     addMethodProxy(innerClass);
                 }
             }
@@ -58,7 +60,12 @@ public abstract class MethodInvocationProxy<T extends MethodInvocationStub> impl
         }
     }
 
+    /**
+     * 将构造加入需要hook的方法集合
+     * @param hookType
+     */
     private void addMethodProxy(Class<?> hookType) {
+        //将构造加入需要hook的方法
         try {
             Constructor<?> constructor = hookType.getDeclaredConstructors()[0];
             if (!constructor.isAccessible()) {

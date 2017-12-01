@@ -14,6 +14,7 @@ import com.lody.virtual.remote.VDeviceInfo;
 import java.lang.reflect.Method;
 
 /**
+ * 方法代理的抽象类,保存了需要代理的方法的相关信息
  * @author Lody
  */
 public abstract class MethodProxy {
