@@ -29,6 +29,7 @@ public abstract class MethodInvocationProxy<T extends MethodInvocationStub> impl
 
     public MethodInvocationProxy(T invocationStub) {
         this.mInvocationStub = invocationStub;
+        //先调用父类的,再调用子类的  这里还要想想
         onBindMethods();
         afterHookApply(invocationStub);
 
@@ -52,7 +53,7 @@ public abstract class MethodInvocationProxy<T extends MethodInvocationStub> impl
                 if (!Modifier.isAbstract(innerClass.getModifiers())
                         && MethodProxy.class.isAssignableFrom(innerClass)
                         && innerClass.getAnnotation(SkipInject.class) == null) {
-
+                    //注入内部类
                     addMethodProxy(innerClass);
                 }
             }
@@ -77,6 +78,7 @@ public abstract class MethodInvocationProxy<T extends MethodInvocationStub> impl
             } else {
                 methodProxy = (MethodProxy) constructor.newInstance(this);
             }
+            //将构造的方法传入需要代理的方法的map集合中
             mInvocationStub.addMethodProxy(methodProxy);
         } catch (Throwable e) {
             throw new RuntimeException("Unable to instance Hook : " + hookType + " : " + e.getMessage());

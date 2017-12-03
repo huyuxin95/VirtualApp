@@ -89,6 +89,7 @@ public class ServiceManagerNative {
      *     名字作为索引,检索binder连接池中已hook的服务的ibinder对象
      */
     public static IBinder getService(String name) {
+        //如果在服务进程直接获取如果在非服务进程需要通过binder连接池获取
         if (VirtualCore.get().isServerProcess()) {
             return ServiceCache.getService(name);
         }

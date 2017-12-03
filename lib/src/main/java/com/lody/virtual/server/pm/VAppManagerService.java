@@ -138,10 +138,17 @@ public class VAppManagerService extends IAppManager.Stub {
         }
     }
 
+    /**
+     * 安装应用
+     * @param path
+     * @param flags
+     * @return
+     */
     @Override
     public InstallResult installPackage(String path, int flags) {
         return installPackage(path, flags, true);
     }
+
 
     public synchronized InstallResult installPackage(String path, int flags, boolean notify) {
         long installTime = System.currentTimeMillis();
@@ -154,6 +161,7 @@ public class VAppManagerService extends IAppManager.Stub {
         }
         VPackage pkg = null;
         try {
+            //利用反射调用不同版本的packageparser解析包信息,封装成VPackage
             pkg = PackageParserEx.parsePackage(packageFile);
         } catch (Throwable e) {
             e.printStackTrace();
@@ -164,6 +172,7 @@ public class VAppManagerService extends IAppManager.Stub {
         InstallResult res = new InstallResult();
         res.packageName = pkg.packageName;
         // PackageCache holds all packages, try to check if we need to update.
+        //根据包名判断是否已经安装过
         VPackage existOne = PackageCacheManager.get(pkg.packageName);
         PackageSetting existSetting = existOne != null ? (PackageSetting) existOne.mExtras : null;
         if (existOne != null) {
@@ -186,6 +195,7 @@ public class VAppManagerService extends IAppManager.Stub {
         if (!libDir.exists() && !libDir.mkdirs()) {
             return InstallResult.makeFailure("Unable to create lib dir.");
         }
+        //是否依赖系统
         boolean dependSystem = (flags & InstallStrategy.DEPEND_SYSTEM_IF_EXIST) != 0
                 && VirtualCore.get().isOutsideInstalled(pkg.packageName);
 
@@ -194,6 +204,7 @@ public class VAppManagerService extends IAppManager.Stub {
         }
 
         NativeLibraryHelperCompat.copyNativeBinaries(new File(path), libDir);
+        //不依赖系统,copy安装包到私有目录
         if (!dependSystem) {
             File privatePackageFile = new File(appDir, "base.apk");
             File parentFolder = privatePackageFile.getParentFile();
@@ -210,9 +221,11 @@ public class VAppManagerService extends IAppManager.Stub {
             }
             packageFile = privatePackageFile;
         }
+
         if (existOne != null) {
             PackageCacheManager.remove(pkg.packageName);
         }
+        //修改安装包读写权限
         chmodPackageDictionary(packageFile);
         PackageSetting ps;
         if (existSetting != null) {
@@ -235,11 +248,13 @@ public class VAppManagerService extends IAppManager.Stub {
                 ps.setUserState(userId, false/*launched*/, false/*hidden*/, installed);
             }
         }
+        //应用信息存储到package.ini中
         PackageParserEx.savePackageCache(pkg);
         PackageCacheManager.put(pkg, ps);
         mPersistenceLayer.save();
         if (!dependSystem) {
             boolean runDexOpt = false;
+            //ART虚拟机
             if (VirtualRuntime.isArt()) {
                 try {
                     ArtDexOptimizer.interpretDex2Oat(ps.apkPath, VEnvironment.getOdexFile(ps.packageName).getPath());
@@ -258,8 +273,10 @@ public class VAppManagerService extends IAppManager.Stub {
                 }
             }
         }
+        //将目标应用的静态广播注册到Vapp的StaticBroadcastReceiver
         BroadcastSystem.get().startApp(pkg);
         if (notify) {
+            //是否需要回调安装完成广播
             notifyAppInstalled(ps, -1);
         }
         res.isSuccess = true;

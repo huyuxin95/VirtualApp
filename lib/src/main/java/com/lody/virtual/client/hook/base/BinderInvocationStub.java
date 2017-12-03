@@ -37,9 +37,17 @@ public class BinderInvocationStub extends MethodInvocationStub<IInterface> imple
     }
 
 
+    /**
+     * 构建一个BinderInvocationStub
+     * 他将XXXXXXManagerStub这些包含有系统服务引用以及系统服务的代理对象和需要hook的方法的map的对象
+     * 转换为一个ibinder对象
+     * @param mBaseInterface
+     */
     public BinderInvocationStub(IInterface mBaseInterface) {
         super(mBaseInterface);
+        //将传入的服务的引用转换为ibinder对象
         mBaseBinder = getBaseInterface() != null ? getBaseInterface().asBinder() : null;
+        //并将自己的对象的回去也添加到map中
         addMethodProxy(new AsBinder());
     }
 
@@ -63,6 +71,9 @@ public class BinderInvocationStub extends MethodInvocationStub<IInterface> imple
         }
     }
 
+    /**
+     * 替换系统中已注册的服务
+     */
     public void replaceService(String name) {
         if (mBaseBinder != null) {
             ServiceManager.sCache.get().put(name, this);

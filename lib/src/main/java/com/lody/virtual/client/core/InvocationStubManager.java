@@ -110,13 +110,15 @@ public final class InvocationStubManager {
 	}
 
 	/**
-	 * 将需要hook的系统服务的代理对象添加到集合中
+	 * 根据进程类型,将需要hook的系统服务的代理对象添加到集合中
 	 * @throws Throwable
 	 */
 	private void injectInternal() throws Throwable {
+		//主线程需要hook的manager
 		if (VirtualCore.get().isMainProcess()) {
 			return;
 		}
+		//服务进程需要hook的manager
 		if (VirtualCore.get().isServerProcess()) {
 			//ActivityManager
 			addInjector(new ActivityManagerStub());
@@ -124,6 +126,7 @@ public final class InvocationStubManager {
 			addInjector(new PackageManagerStub());
 			return;
 		}
+		//app线程需要hook的manager
 		if (VirtualCore.get().isVAppProcess()) {
 			//BlockGuardOs
 			addInjector(new LibCoreStub());

@@ -133,6 +133,10 @@ public class BroadcastSystem {
         }
     }
 
+    /**
+     * 将安装包内的静态广播注册到VBroadcastSystem以便先收到广播
+     * @param p
+     */
     public void startApp(VPackage p) {
         PackageSetting setting = (PackageSetting) p.mExtras;
         for (VPackage.ActivityComponent receiver : p.receivers) {

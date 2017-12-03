@@ -20,6 +20,7 @@ public class PackageCacheManager {
 
     public static void put(VPackage pkg, PackageSetting ps) {
         synchronized (PackageCacheManager.class) {
+            //初始化ApplicationInfo
             PackageParserEx.initApplicationInfoBase(ps, pkg);
             PACKAGE_CACHE.put(pkg.packageName, pkg);
             pkg.mExtras = ps;

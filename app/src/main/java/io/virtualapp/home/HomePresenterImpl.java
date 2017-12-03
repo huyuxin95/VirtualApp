@@ -93,9 +93,11 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
         }
         AddResult addResult = new AddResult();
         VUiKit.defer().when(() -> {
+            //根据包名去VAMS获取安装信息,如果是首次安装,则返回值为null
             InstalledAppInfo installedAppInfo = VirtualCore.get().getInstalledAppInfo(info.packageName, 0);
             addResult.justEnableHidden = installedAppInfo != null;
             if (addResult.justEnableHidden) {
+                //多开应用的安装
                 int[] userIds = installedAppInfo.getInstalledUsers();
                 int nextUserId = userIds.length;
                 /*
@@ -108,38 +110,45 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
                         break;
                     }
                 }
+                //找出那个用户还未安装这个应用
                 addResult.userId = nextUserId;
 
                 if (VUserManager.get().getUserInfo(nextUserId) == null) {
                     // user not exist, create it automatically.
                     String nextUserName = "Space " + (nextUserId + 1);
+                    //创建一个新用户
                     VUserInfo newUserInfo = VUserManager.get().createUser(nextUserName, VUserInfo.FLAG_ADMIN);
                     if (newUserInfo == null) {
                         throw new IllegalStateException();
                     }
                 }
+                //给当前应用安装这个app
                 boolean success = VirtualCore.get().installPackageAsUser(nextUserId, info.packageName);
                 if (!success) {
                     throw new IllegalStateException();
                 }
             } else {
+                //首次安装
                 InstallResult res = mRepo.addVirtualApp(info);
                 if (!res.isSuccess) {
                     throw new IllegalStateException();
                 }
             }
         }).then((res) -> {
+            //获取已安装的信息
             addResult.appData = PackageAppDataStorage.get().acquire(info.packageName);
         }).done(res -> {
             boolean multipleVersion = addResult.justEnableHidden && addResult.userId != 0;
             if (!multipleVersion) {
                 PackageAppData data = addResult.appData;
                 data.isLoading = true;
+                //安装完成更新ui
                 mView.addAppToLauncher(data);
                 handleOptApp(data, info.packageName, true);
             } else {
                 MultiplePackageAppData data = new MultiplePackageAppData(addResult.appData, addResult.userId);
                 data.isLoading = true;
+                //安装完成更新ui
                 mView.addAppToLauncher(data);
                 handleOptApp(data, info.packageName, false);
             }
@@ -152,6 +161,7 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
             long time = System.currentTimeMillis();
             if (needOpt) {
                 try {
+                    //第一安装需要进行dex文件优化
                     VirtualCore.get().preOpt(packageName);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -166,6 +176,7 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
                 }
             }
         }).done((res) -> {
+            //刷新ui
             if (data instanceof PackageAppData) {
                 ((PackageAppData) data).isLoading = false;
                 ((PackageAppData) data).isFirstOpen = true;

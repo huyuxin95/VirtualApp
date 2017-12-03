@@ -188,6 +188,11 @@ public class PackageParserEx {
         return cache;
     }
 
+    /**
+     * 初始化ApplicationInfo
+     * @param ps
+     * @param p
+     */
     public static void initApplicationInfoBase(PackageSetting ps, VPackage p) {
         ApplicationInfo ai = p.applicationInfo;
         ai.flags |= ApplicationInfo.FLAG_HAS_CODE;

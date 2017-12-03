@@ -46,7 +46,8 @@ public class MethodInvocationStub<T> {
     }
 
     /**
-     * 创建代理对象
+     * mBaseInterface存储了服务在客户端的引用
+     * mProxyInterface 存储了 服务引用的代理对象
      * @param baseInterface
      * @param proxyInterfaces
      */
@@ -54,8 +55,10 @@ public class MethodInvocationStub<T> {
         this.mBaseInterface = baseInterface;
         if (baseInterface != null) {
             if (proxyInterfaces == null) {
+                //获取服务(ams)引用的所有接口
                 proxyInterfaces = MethodParameterUtils.getAllInterface(baseInterface.getClass());
             }
+            //生成该服务引用的代理对象
             mProxyInterface = (T) Proxy.newProxyInstance(baseInterface.getClass().getClassLoader(), proxyInterfaces, new HookInvocationHandler());
         } else {
             VLog.d(TAG, "Unable to build HookDelegate: %s.", getIdentityName());
@@ -154,6 +157,8 @@ public class MethodInvocationStub<T> {
     }
 
     /**
+     * 获取系统服务在客户端引用的代理对象
+     * 他的获取在当前类的构造的时候获取
      * @return Proxy interface
      */
     public T getProxyInterface() {
@@ -161,6 +166,8 @@ public class MethodInvocationStub<T> {
     }
 
     /**
+     * 获取通过反射获得的服务在客户端的引用
+     * 它在当前类的构造的时候传入
      * @return Origin Interface
      */
     public T getBaseInterface() {

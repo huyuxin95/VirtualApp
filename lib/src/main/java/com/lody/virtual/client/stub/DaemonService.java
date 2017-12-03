@@ -10,7 +10,8 @@ import android.os.IBinder;
 /**
  * @author Lody
  *
- * 开启了一个保活的服务
+ * 开启了一个保活的前台服务
+ * 并提升了优先级
  *
  */
 public class DaemonService extends Service {

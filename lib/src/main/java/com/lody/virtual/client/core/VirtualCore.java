@@ -182,7 +182,7 @@ public final class VirtualCore {
             unHookPackageManager = context.getPackageManager();//获取还没hook的pm
             //获取当前PkgInfo
             hostPkgInfo = unHookPackageManager.getPackageInfo(context.getPackageName(), PackageManager.GET_PROVIDERS);
-            //区分线程
+            //区分当前进程
             detectProcessType();
 
             InvocationStubManager invocationStubManager = InvocationStubManager.getInstance();
@@ -323,14 +323,17 @@ public final class VirtualCore {
 
     /**
      * Optimize the Dalvik-Cache for the specified package.
-     *动态加载安装包的dex文件
+     * 对指定包名的dex文件进行优化
+     * info.getOdexFile().getPath()  优化后文件输出路径
      * @param pkg package name
      * @throws IOException
      */
     @Deprecated
     public void preOpt(String pkg) throws IOException {
+        //获取安装信息
         InstalledAppInfo info = getInstalledAppInfo(pkg, 0);
         if (info != null && !info.dependSystem) {
+            //dex优化
             DexFile.loadDex(info.apkPath, info.getOdexFile().getPath(), 0).close();
         }
     }

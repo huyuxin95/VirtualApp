@@ -84,6 +84,8 @@ public final class BinderProvider extends ContentProvider {
 
 
     private void addService(String name, IBinder service) {
+        //ServiceCache是个缓存类,它提供的map存储着已hook的系统服务的ibinder对象
+        //并提供add,remove,get方法来维护这个map
         ServiceCache.addService(name, service);
     }
 

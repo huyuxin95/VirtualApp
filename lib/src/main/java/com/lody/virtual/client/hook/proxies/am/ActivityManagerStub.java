@@ -43,6 +43,7 @@ public class ActivityManagerStub extends MethodInvocationProxy<MethodInvocationS
 
     public ActivityManagerStub() {
         //这里初始化了动态代理模型,并hook了构造
+        //ActivityManagerNative.getDefault.call()反射获取AMS在客户端的引用
         super(new MethodInvocationStub<>(ActivityManagerNative.getDefault.call()));
     }
 
@@ -55,18 +56,26 @@ public class ActivityManagerStub extends MethodInvocationProxy<MethodInvocationS
             Singleton.mInstance.set(singleton, getInvocationStub().getProxyInterface());
         } else {
             if (ActivityManagerNative.gDefault.type() == IActivityManager.TYPE) {
+                //通过反射修改gDefault的值.也就是ams的引用
                 ActivityManagerNative.gDefault.set(getInvocationStub().getProxyInterface());
             } else if (ActivityManagerNative.gDefault.type() == Singleton.TYPE) {
                 Object gDefault = ActivityManagerNative.gDefault.get();
                 Singleton.mInstance.set(gDefault, getInvocationStub().getProxyInterface());
             }
         }
-        //获取IInterface对象转换为ibinder对象,并将其加入到ServiceManager的集合中
+        //通过在构造时给父类传入当前服务的引用,         getInvocationStub()可获取
+        // 并在父类的构造中获取当前服务的动态代理对象,   getBaseInterface()可获取
         BinderInvocationStub hookAMBinder = new BinderInvocationStub(getInvocationStub().getBaseInterface());
+        //将在addInjector(new ActivityManagerStub());时写入到map的MathodProxy全部copy到BinderInvocationStub的Map<String, MethodProxy> mInternalMethodProxies 结构中去
         hookAMBinder.copyMethodProxies(getInvocationStub());
+        //将当前服务的Ibinder包装类put到系统的servicemanager中去
         ServiceManager.sCache.get().put(Context.ACTIVITY_SERVICE, hookAMBinder);
     }
 
+
+    /**
+     * 设置需要hook的方法
+     */
     @Override
     protected void onBindMethods() {
         super.onBindMethods();
