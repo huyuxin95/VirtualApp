@@ -30,6 +30,7 @@ public class SplashActivity extends VActivity {
                 Once.markDone("collect_flurry");
             }
             long time = System.currentTimeMillis();
+            //开始ContentProvider
             doActionInThread();
             time = System.currentTimeMillis() - time;
             long delta = 3000L - time;
@@ -45,6 +46,7 @@ public class SplashActivity extends VActivity {
     //初始化BinderProvider
     private void doActionInThread() {
         if (!VirtualCore.get().isEngineLaunched()) {
+            //开始ContentProvider
             VirtualCore.get().waitForEngine();
         }
     }

@@ -19,7 +19,7 @@ import mirror.android.os.ServiceManager;
 
 /**
  * @author Lody
- * 这是一个工具转换类,将ibinder对象转换为IInterface对象,
+ * 这是一个工具类,XXXXXStub这样的服务引用的代理类会使用到他,用它在ibinder及IInterface之间相互转换
  * 或将IInterface对象转换为ibinder对象
  */
 @SuppressWarnings("unchecked")

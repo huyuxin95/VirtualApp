@@ -98,6 +98,7 @@ import mirror.android.app.IActivityManager;
 
         private boolean handleLaunchActivity(Message msg) {
             Object r = msg.obj;
+            //从ActivityClientRecord中获取intent
             Intent stubIntent = ActivityThread.ActivityClientRecord.intent.get(r);
             StubActivityRecord saveInstance = new StubActivityRecord(stubIntent);
             if (saveInstance.intent == null) {

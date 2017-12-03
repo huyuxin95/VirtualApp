@@ -126,6 +126,17 @@ public class VActivityManagerService extends IActivityManager.Stub {
     }
 
 
+    /**
+     * 启动Activity
+     * @param intent
+     * @param info
+     * @param resultTo
+     * @param options
+     * @param resultWho
+     * @param requestCode
+     * @param userId
+     * @return
+     */
     @Override
     public int startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, String resultWho, int requestCode, int userId) {
         synchronized (this) {

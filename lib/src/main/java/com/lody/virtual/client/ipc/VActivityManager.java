@@ -65,7 +65,7 @@ public class VActivityManager {
                 .asInterface(ServiceManagerNative.getService(ServiceManagerNative.ACTIVITY));
     }
 
-
+    //启动Activity
     public int startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, String resultWho, int requestCode, int userId) {
         try {
             return getService().startActivity(intent, info, resultTo, options, resultWho, requestCode, userId);
@@ -82,10 +82,12 @@ public class VActivityManager {
         }
     }
 
+    // 启动Activity
     public int startActivity(Intent intent, int userId) {
         if (userId < 0) {
             return ActivityManagerCompat.START_NOT_CURRENT_USER_ACTIVITY;
         }
+        //VPackageManager
         ActivityInfo info = VirtualCore.get().resolveActivityInfo(intent, userId);
         if (info == null) {
             return ActivityManagerCompat.START_INTENT_NOT_RESOLVED;
