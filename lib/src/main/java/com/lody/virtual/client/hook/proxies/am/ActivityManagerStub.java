@@ -122,6 +122,10 @@ public class ActivityManagerStub extends MethodInvocationProxy<MethodInvocationS
         }
     }
 
+    /**
+     * 通过反射获取系统的AMS引用是否和hook之后的应用相等,不相等则说明成功hook
+     * @return
+     */
     @Override
     public boolean isEnvBad() {
         return ActivityManagerNative.getDefault.call() != getInvocationStub().getProxyInterface();

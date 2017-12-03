@@ -57,6 +57,7 @@ public class ContextFixer {
         BinderInvocationStub boxBinder = InvocationStubManager.getInstance().getInvocationStub(DropBoxManagerStub.class);
         if (boxBinder != null) {
             try {
+                //反射,设置DropBoxManager里面的mService为代理对象
                 Reflect.on(dm).set("mService", boxBinder.getProxyInterface());
             } catch (ReflectException e) {
                 e.printStackTrace();

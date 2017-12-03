@@ -58,7 +58,7 @@ public class VAppManagerService extends IAppManager.Stub {
     }
 
     public static void systemReady() {
-        //爸相关文件权限打开
+        //把相关文件权限打开
         VEnvironment.systemReady();
         VAppManagerService instance = new VAppManagerService();
         instance.mUidSystem.initUidList();

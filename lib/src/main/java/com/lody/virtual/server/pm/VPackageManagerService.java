@@ -44,6 +44,7 @@ import static android.content.pm.PackageManager.MATCH_DIRECT_BOOT_UNAWARE;
 
 /**
  * @author Lody
+ *PackageManager的AIDL实现
  */
 public class VPackageManagerService extends IPackageManager.Stub {
 

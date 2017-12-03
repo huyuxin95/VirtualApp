@@ -161,6 +161,9 @@ public class VPackageManager {
         }
     }
 
+    /**
+     * 查询已注册的Activty
+     */
     public List<ResolveInfo> queryIntentActivities(Intent intent, String resolvedType, int flags, int userId) {
         try {
             return getInterface().queryIntentActivities(intent, resolvedType, flags, userId);
@@ -169,6 +172,9 @@ public class VPackageManager {
         }
     }
 
+    /**
+     * 查询已注册的IntentServices
+     */
     public List<ResolveInfo> queryIntentServices(Intent intent, String resolvedType, int flags, int userId) {
         try {
             return getInterface().queryIntentServices(intent, resolvedType, flags, userId);
@@ -177,6 +183,9 @@ public class VPackageManager {
         }
     }
 
+    /**
+     *查询已注册的Application
+     */
     public ApplicationInfo getApplicationInfo(String packageName, int flags, int userId) {
         try {
             return getInterface().getApplicationInfo(packageName, flags, userId);
@@ -185,6 +194,9 @@ public class VPackageManager {
         }
     }
 
+    /**
+     * 查询已注册的ContentProvider
+     */
     public ProviderInfo resolveContentProvider(String name, int flags, int userId) {
         try {
             return getInterface().resolveContentProvider(name, flags, userId);
@@ -192,6 +204,7 @@ public class VPackageManager {
             return VirtualRuntime.crash(e);
         }
     }
+
 
     public ServiceInfo getServiceInfo(ComponentName componentName, int flags, int userId) {
         try {

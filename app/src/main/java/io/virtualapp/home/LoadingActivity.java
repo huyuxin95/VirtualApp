@@ -32,6 +32,7 @@ public class LoadingActivity extends VActivity {
     private EatBeansView loadingView;
 
     public static void launch(Context context, String packageName, int userId) {
+        //根据包名和用户id,获取需要启动的app的intent
         Intent intent = VirtualCore.get().getLaunchIntent(packageName, userId);
         if (intent != null) {
             Intent loadingPageIntent = new Intent(context, LoadingActivity.class);

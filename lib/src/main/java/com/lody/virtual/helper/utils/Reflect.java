@@ -33,7 +33,7 @@ public class Reflect {
     }
 
     /**
-     * 根据指定的类名构建反射工具类
+     * 传入类名生成对应的Reflect对象
      *
      * @param name 类的全名
      * @return 反射工具类
@@ -136,6 +136,13 @@ public class Reflect {
         }
     }
 
+    /**
+     * 通过构造器,创建一个Reflect对象
+     * @param constructor
+     * @param args
+     * @return
+     * @throws ReflectException
+     */
     private static Reflect on(Constructor<?> constructor, Object... args) throws ReflectException {
         try {
             return on(accessible(constructor).newInstance(args));
@@ -144,6 +151,14 @@ public class Reflect {
         }
     }
 
+    /**
+     * 通过Method创建一个Reflect对象
+     * @param method
+     * @param object
+     * @param args
+     * @return
+     * @throws ReflectException
+     */
     private static Reflect on(Method method, Object object, Object... args) throws ReflectException {
         try {
             accessible(method);
@@ -191,8 +206,7 @@ public class Reflect {
     }
 
     /**
-     * 取得一个类,此操作会初始化类的static区域.
-     *
+     * 取得一个类,此操作会初始化类的static区域.!!
      * @see Class#forName(String)
      */
     private static Class<?> forName(String name) throws ReflectException {
@@ -273,6 +287,7 @@ public class Reflect {
     }
 
     /**
+     * 通过字段名获取值
      * @param name name
      * @param <T>  type
      * @return object

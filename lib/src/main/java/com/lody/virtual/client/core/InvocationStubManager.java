@@ -96,7 +96,10 @@ public final class InvocationStubManager {
 		return sInit;
 	}
 
-
+	/**
+	 * 系统服务hook的初始化
+	 * @throws Throwable
+	 */
 	public void init() throws Throwable {
 		if (isInit()) {
 			throw new IllegalStateException("InvocationStubManager Has been initialized.");
@@ -106,77 +109,128 @@ public final class InvocationStubManager {
 
 	}
 
+	/**
+	 * 将需要hook的系统服务的代理对象添加到集合中
+	 * @throws Throwable
+	 */
 	private void injectInternal() throws Throwable {
 		if (VirtualCore.get().isMainProcess()) {
 			return;
 		}
 		if (VirtualCore.get().isServerProcess()) {
+			//ActivityManager
 			addInjector(new ActivityManagerStub());
+			//PackageManager
 			addInjector(new PackageManagerStub());
 			return;
 		}
 		if (VirtualCore.get().isVAppProcess()) {
+			//BlockGuardOs
 			addInjector(new LibCoreStub());
+			//ActivityManager
 			addInjector(new ActivityManagerStub());
+			//PackageManager
 			addInjector(new PackageManagerStub());
+			//ActivityThread.mH
 			addInjector(HCallbackStub.getDefault());
+			//ISms
 			addInjector(new ISmsStub());
+			//ISub
 			addInjector(new ISubStub());
+			//DropBoxManager
 			addInjector(new DropBoxManagerStub());
+			//NotificationManager
 			addInjector(new NotificationManagerStub());
+			//LocationManager
 			addInjector(new LocationManagerStub());
+			//WindowManager
 			addInjector(new WindowManagerStub());
+			//ClipBoard
 			addInjector(new ClipBoardStub());
+			//MountService
 			addInjector(new MountServiceStub());
+			//BackupManager
 			addInjector(new BackupManagerStub());
+			// Telephony
 			addInjector(new TelephonyStub());
+			//TelephonyRegistry
 			addInjector(new TelephonyRegistryStub());
+			//PhoneSubInfo
 			addInjector(new PhoneSubInfoStub());
+			//PowerManager
 			addInjector(new PowerManagerStub());
+			//AppWidgetManager
 			addInjector(new AppWidgetManagerStub());
+			//AccountManager
 			addInjector(new AccountManagerStub());
+			//AudioManager
 			addInjector(new AudioManagerStub());
+			//SearchManager
 			addInjector(new SearchManagerStub());
+			//ContentService
 			addInjector(new ContentServiceStub());
+			//Connectivity
 			addInjector(new ConnectivityStub());
 
 			if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR2) {
+				//Vibrator
 				addInjector(new VibratorStub());
+				//WifiManager
 				addInjector(new WifiManagerStub());
+				//Bluetooth
 				addInjector(new BluetoothStub());
+
 				addInjector(new ContextHubServiceStub());
 			}
 			if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR1) {
+				//UserManager
 				addInjector(new UserManagerStub());
 			}
 
 			if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR1) {
+				//Display
 				addInjector(new DisplayStub());
 			}
 			if (Build.VERSION.SDK_INT >= LOLLIPOP) {
+				//PersistentDataBlockService
 				addInjector(new PersistentDataBlockServiceStub());
+				//InputMethodManager
 				addInjector(new InputMethodManagerStub());
+				//Mms in  Telephony
 				addInjector(new MmsStub());
+				//SessionManager
 				addInjector(new SessionManagerStub());
+				//JobService
 				addInjector(new JobServiceStub());
+				//Restriction
 				addInjector(new RestrictionStub());
 			}
 			if (Build.VERSION.SDK_INT >= KITKAT) {
+				//AlarmManager
 				addInjector(new AlarmManagerStub());
+				//AppOpsManager
 				addInjector(new AppOpsManagerStub());
+				//MediaRouterService
 				addInjector(new MediaRouterServiceStub());
 			}
 			if (Build.VERSION.SDK_INT >= LOLLIPOP_MR1) {
+				//GraphicsStats
 				addInjector(new GraphicsStatsStub());
+				//UsageStatsManager
 				addInjector(new UsageStatsManagerStub());
 			}
 			if (Build.VERSION.SDK_INT >= M) {
+				//FingerprintManager
 				addInjector(new FingerprintManagerStub());
+				//NetworkManagement
 				addInjector(new NetworkManagementStub());
 			}
 			if (Build.VERSION.SDK_INT >= N) {
+				//WifiScanner
                 addInjector(new WifiScannerStub());
+                //ShortcutService
                 addInjector(new ShortcutServiceStub());
+                //DevicePolicyManager
                 addInjector(new DevicePolicyManagerStub());
             }
 		}

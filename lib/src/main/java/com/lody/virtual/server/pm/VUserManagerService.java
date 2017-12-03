@@ -46,6 +46,7 @@ import java.util.List;
 
 /**
  * @author Lody
+ * UserManagerService的AIDL实现
  */
 public class VUserManagerService extends IUserManager.Stub {
 

@@ -82,6 +82,8 @@ public final class VirtualCore {
      */
     private String processName;
     private ProcessType processType;
+
+    //大杂烩
     private IAppManager mService;
     private boolean isStartUp;
     private PackageInfo hostPkgInfo;
@@ -175,14 +177,18 @@ public final class VirtualCore {
             VASettings.STUB_CP_AUTHORITY = context.getPackageName() + "." + VASettings.STUB_DEF_AUTHORITY;
             ServiceManagerNative.SERVICE_CP_AUTH = context.getPackageName() + "." + ServiceManagerNative.SERVICE_DEF_AUTH;
             this.context = context;
+            //直接通过反射获取到ActivityThread对象
             mainThread = ActivityThread.currentActivityThread.call();
-            unHookPackageManager = context.getPackageManager();
+            unHookPackageManager = context.getPackageManager();//获取还没hook的pm
+            //获取当前PkgInfo
             hostPkgInfo = unHookPackageManager.getPackageInfo(context.getPackageName(), PackageManager.GET_PROVIDERS);
+            //区分线程
             detectProcessType();
+
             InvocationStubManager invocationStubManager = InvocationStubManager.getInstance();
             //hook的初始化
             invocationStubManager.init();
-            //统一注入
+            //循环hook
             invocationStubManager.injectAll();
             ContextFixer.fixContext(context);
             isStartUp = true;
@@ -253,6 +259,10 @@ public final class VirtualCore {
         }
     }
 
+    /**
+     * 获取PackageManager在客户端的引用
+     * @return
+     */
     private IAppManager getService() {
         if (mService == null
                 || (!VirtualCore.get().isVAppProcess() && !mService.asBinder().isBinderAlive())) {
@@ -313,7 +323,7 @@ public final class VirtualCore {
 
     /**
      * Optimize the Dalvik-Cache for the specified package.
-     *
+     *动态加载安装包的dex文件
      * @param pkg package name
      * @throws IOException
      */
@@ -350,6 +360,10 @@ public final class VirtualCore {
         }
     }
 
+    /**
+     * 添加白名单
+     * @param pkg
+     */
     public void addVisibleOutsidePackage(String pkg) {
         try {
             getService().addVisibleOutsidePackage(pkg);
@@ -388,6 +402,7 @@ public final class VirtualCore {
                 && getLaunchIntent(packageName, info.getInstalledUsers()[0]) != null;
     }
 
+    //根据包名和用户id,获取需要启动的app的intent
     public Intent getLaunchIntent(String packageName, int userId) {
         VPackageManager pm = VPackageManager.get();
         Intent intentToResolve = new Intent(Intent.ACTION_MAIN);
@@ -398,6 +413,7 @@ public final class VirtualCore {
         // Otherwise, try to find a main launcher activity.
         if (ris == null || ris.size() <= 0) {
             // reuse the intent instance
+            //查询一个非main的显示意图
             intentToResolve.removeCategory(Intent.CATEGORY_INFO);
             intentToResolve.addCategory(Intent.CATEGORY_LAUNCHER);
             intentToResolve.setPackage(packageName);
@@ -519,6 +535,12 @@ public final class VirtualCore {
         }
     }
 
+    /**
+     * 获取需要安装应用的信息
+     * @param pkg
+     * @param flags
+     * @return
+     */
     public InstalledAppInfo getInstalledAppInfo(String pkg, int flags) {
         try {
             return getService().getInstalledAppInfo(pkg, flags);

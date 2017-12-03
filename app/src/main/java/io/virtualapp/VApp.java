@@ -33,6 +33,7 @@ public class VApp extends MultiDexApplication {
         VASettings.ENABLE_IO_REDIRECT = true;
         VASettings.ENABLE_INNER_SHORTCUT = false;
         try {
+            //第一步
             VirtualCore.get().startup(base);
         } catch (Throwable e) {
             e.printStackTrace();

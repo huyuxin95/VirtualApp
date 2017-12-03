@@ -13,6 +13,10 @@ import com.lody.virtual.server.interfaces.IServiceFetcher;
 
 /**
  * @author Lody
+ * 服务的实现在对应的AIDL的服务端实现类中
+ * 这个类提供了binder连接池的入口,以及封装好连接池的获取,增加,删除操作
+ * 需要注意的是获得是的服务的ibinder对象,需要通过XXXX.stub.asinterface
+ * 来转换成对应服务在本地的的引用
  */
 public class ServiceManagerNative {
 
@@ -33,7 +37,10 @@ public class ServiceManagerNative {
 
     private static IServiceFetcher sFetcher;
 
-    //获取Binder连接池入口在本地的引用
+    /**
+     * 获取Binder连接池入口在本地的引用
+     * @return
+     */
     private static IServiceFetcher getServiceFetcher() {
         if (sFetcher == null || !sFetcher.asBinder().isBinderAlive()) {
             synchronized (ServiceManagerNative.class) {
@@ -52,6 +59,10 @@ public class ServiceManagerNative {
         return sFetcher;
     }
 
+    /**
+     * 通过打开ContentProvider的方式创建一个新的进程,这个新的进程的ContentProvider模拟了
+     * Android的ServiceManger的角色
+     */
     public static void ensureServerStarted() {
         new ProviderCall.Builder(VirtualCore.get().getContext(), SERVICE_CP_AUTH).methodName("ensure_created").call();
     }
@@ -74,7 +85,9 @@ public class ServiceManagerNative {
         }
     }
 
-    //名字作为索引,检索binder连接池中已hook的服务的ibinder对象
+    /**
+     *     名字作为索引,检索binder连接池中已hook的服务的ibinder对象
+     */
     public static IBinder getService(String name) {
         if (VirtualCore.get().isServerProcess()) {
             return ServiceCache.getService(name);
@@ -91,7 +104,11 @@ public class ServiceManagerNative {
         return null;
     }
 
-    //将服务的索引和ibinder对象通过连接池引用,添加到服务端的map中
+    /**
+     * 将服务的索引和ibinder对象通过连接池引用,添加到服务端的map中
+     * @param name
+     * @param service
+     */
     public static void addService(String name, IBinder service) {
         IServiceFetcher fetcher = getServiceFetcher();
         if (fetcher != null) {
@@ -102,7 +119,11 @@ public class ServiceManagerNative {
             }
         }
     }
-    //通过连接池引用,将服务从服务端的map中移除
+
+    /**
+     * 通过连接池引用,将服务从服务端的map中移除
+     * @param name
+     */
     public static void removeService(String name) {
         IServiceFetcher fetcher = getServiceFetcher();
         if (fetcher != null) {
