@@ -996,6 +996,15 @@
             android:taskAffinity="com.lody.virtual.vt"
             android:theme="@android:style/Theme.Dialog" />
 
+        <!--
+           <provider
+            android:name="com.lody.virtual.client.stub.StubContentProvider$C0"
+            android:authorities="${applicationId}.virtual_stub_0"
+            android:exported="false"
+            android:process=":p0" />
+
+            50个ContentProvider最多为50个应用提供后台服务
+        -->
         <provider
             android:name="com.lody.virtual.client.stub.StubContentProvider$C0"
             android:authorities="${applicationId}.virtual_stub_0"

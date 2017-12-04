@@ -26,6 +26,7 @@ import mirror.android.app.IActivityManager;
 /**
      * @author Lody
      * @see Handler.Callback
+     * hook了ActivityTread中mh的CallBack
      */
     public class HCallbackStub implements Handler.Callback, IInjector {
 
@@ -69,6 +70,7 @@ import mirror.android.app.IActivityManager;
             if (!mCalling) {
                 mCalling = true;
                 try {
+                    //启动Activity
                     if (LAUNCH_ACTIVITY == msg.what) {
                         if (!handleLaunchActivity(msg)) {
                             return true;
@@ -96,10 +98,12 @@ import mirror.android.app.IActivityManager;
             return false;
         }
 
+        //启动Activity
         private boolean handleLaunchActivity(Message msg) {
             Object r = msg.obj;
             //从ActivityClientRecord中获取intent
             Intent stubIntent = ActivityThread.ActivityClientRecord.intent.get(r);
+            //从stubIntent中获取我们真正需要启动的Activity
             StubActivityRecord saveInstance = new StubActivityRecord(stubIntent);
             if (saveInstance.intent == null) {
                 return true;
@@ -127,9 +131,12 @@ import mirror.android.app.IActivityManager;
                     token,
                     false
             );
+            //通知后台服务进程中的VAMS保存该Activity相关信息
             VActivityManager.get().onActivityCreate(ComponentUtils.toComponentName(info), caller, token, info, intent, ComponentUtils.getTaskAffinity(info), taskId, info.launchMode, info.flags);
             ClassLoader appClassLoader = VClientImpl.get().getClassLoader(info.applicationInfo);
             intent.setExtrasClassLoader(appClassLoader);
+            //反射设置 ActivityThread.ActivityClientRecord中的intent为双开应用组建的intent，
+            // 即我们真正需要启动的Activity的intent。同时设置其内部的activityInfo等。
             ActivityThread.ActivityClientRecord.intent.set(r, intent);
             ActivityThread.ActivityClientRecord.activityInfo.set(r, info);
             return true;

@@ -111,6 +111,7 @@ public class PackageParserEx {
         try {
             p.writeInt(4);
             pkg.writeToParcel(p, 0);
+            //将package的信息写入到package.ini中
             FileOutputStream fos = new FileOutputStream(VEnvironment.getPackageCacheFile(packageName));
             fos.write(p.marshall());
             fos.close();
@@ -121,6 +122,7 @@ public class PackageParserEx {
         }
         Signature[] signatures = pkg.mSignatures;
         if (signatures != null) {
+            //把签名信息写到signature.ini
             File signatureFile = VEnvironment.getSignatureFile(packageName);
             if (signatureFile.exists() && !signatureFile.delete()) {
                 VLog.w(TAG, "Unable to delete the signatures of " + packageName);

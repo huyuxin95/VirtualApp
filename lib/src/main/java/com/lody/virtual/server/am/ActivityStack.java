@@ -264,12 +264,14 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
         return destIntents;
     }
 
-
+    //启动Activty
     int startActivityLocked(int userId, Intent intent, ActivityInfo info, IBinder resultTo, Bundle options,
                             String resultWho, int requestCode) {
         optimizeTasksLocked();
 
         Intent destIntent;
+        //根据token去已经启动的缓存中获取对应的ActivityRecord，
+        // 第一次启动这里sourceRecord,sourceTask都是null。
         ActivityRecord sourceRecord = findActivityByToken(userId, resultTo);
         TaskRecord sourceTask = sourceRecord != null ? sourceRecord.task : null;
 
@@ -281,6 +283,8 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
         if (intent.getComponent() == null) {
             intent.setComponent(new ComponentName(info.packageName, info.name));
         }
+
+        //根据目标intent设置的flag处理启动模式
         if (sourceRecord != null && sourceRecord.launchMode == LAUNCH_SINGLE_INSTANCE) {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         }
@@ -366,6 +370,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
 
         boolean taskMarked = false;
         if (reuseTask == null) {
+            //首次启动
             startActivityInNewTaskLocked(userId, intent, info, options);
         } else {
             boolean delivered = false;
@@ -401,8 +406,14 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
         return 0;
     }
 
+    /**
+     * 首次启动
+     */
     private void startActivityInNewTaskLocked(int userId, Intent intent, ActivityInfo info, Bundle options) {
+        //负责为新启动的Activity创建一个新的进程
+        //并且替换完成为proxyAactivty(已经声明的Activity)
         Intent destIntent = startActivityProcess(userId, null, intent, info);
+        //添加启动模式
         if (destIntent != null) {
             destIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             destIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
@@ -414,7 +425,7 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
             } else {
                 destIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
             }
-
+            //调用系统的startActivity启动
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 VirtualCore.get().getContext().startActivity(destIntent, options);
             } else {
@@ -510,8 +521,11 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
                 (Object[]) args);
     }
 
+    /**
+     * 判断目标启动Activity组件是否是对话框模式返回对应Activity类名
+     * 返回对应proxy类的包名
+     */
     private String fetchStubActivity(int vpid, ActivityInfo targetInfo) {
-
         boolean isFloating = false;
         boolean isTranslucent = false;
         boolean showWallpaper = false;
@@ -550,19 +564,27 @@ import static android.content.pm.ActivityInfo.LAUNCH_SINGLE_TOP;
         }
     }
 
+    /**
+     * 负责为新启动的Activity创建一个新的进程
+     * 并返回已经代理的targetIntent
+     */
     private Intent startActivityProcess(int userId, ActivityRecord sourceRecord, Intent intent, ActivityInfo info) {
         intent = new Intent(intent);
+        //获取对应包名的PackageSetting和ApplicationInfo对象
+        //并负责为新启动的Activity创建一个新的进程
         ProcessRecord targetApp = mService.startProcessIfNeedLocked(info.processName, userId, info.packageName);
         if (targetApp == null) {
             return null;
         }
         Intent targetIntent = new Intent();
+        //在这里将替换成启动proxyActivity,并根据Activity类型获取对应的包名
         targetIntent.setClassName(VirtualCore.get().getHostPkg(), fetchStubActivity(targetApp.vpid, info));
         ComponentName component = intent.getComponent();
         if (component == null) {
             component = ComponentUtils.toComponentName(info);
         }
         targetIntent.setType(component.flattenToString());
+        //创建一个StubActivityRecord来Copy当前Activity的信息
         StubActivityRecord saveInstance = new StubActivityRecord(intent, info,
                 sourceRecord != null ? sourceRecord.component : null, userId);
         saveInstance.saveToIntent(targetIntent);

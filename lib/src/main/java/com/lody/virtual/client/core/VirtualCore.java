@@ -61,7 +61,7 @@ public final class VirtualCore {
     private static VirtualCore gCore = new VirtualCore();
     private final int myUid = Process.myUid();
     /**
-     * Client Package Manager
+     * orgin packageManager
      */
     private PackageManager unHookPackageManager;
     /**
@@ -612,17 +612,21 @@ public final class VirtualCore {
 
     public synchronized ActivityInfo resolveActivityInfo(Intent intent, int userId) {
         ActivityInfo activityInfo = null;
+        //如果getComponent为空,那么信息没有补全
         if (intent.getComponent() == null) {
+            //通过intent获取ResolveInfo,设置ComponentName
             ResolveInfo resolveInfo = VPackageManager.get().resolveIntent(intent, intent.getType(), 0, userId);
             if (resolveInfo != null && resolveInfo.activityInfo != null) {
                 activityInfo = resolveInfo.activityInfo;
                 intent.setClassName(activityInfo.packageName, activityInfo.name);
             }
         } else {
+            //直接填充信息
             activityInfo = resolveActivityInfo(intent.getComponent(), userId);
         }
         if (activityInfo != null) {
             if (activityInfo.targetActivity != null) {
+                //根据传入的packageName,targetActivity,生成ActivityInfo
                 ComponentName componentName = new ComponentName(activityInfo.packageName, activityInfo.targetActivity);
                 activityInfo = VPackageManager.get().getActivityInfo(componentName, 0, userId);
                 intent.setComponent(componentName);

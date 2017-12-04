@@ -51,12 +51,13 @@ public class LoadingActivity extends VActivity {
         loadingView = (EatBeansView) findViewById(R.id.loading_anim);
         int userId = getIntent().getIntExtra(KEY_USER, -1);  //用户ID  默认0
         String pkg = getIntent().getStringExtra(PKG_NAME_ARGUMENT);   //packageName
+        //传入packageName,获取安装包安装时解析到的数据封装,
         appModel = PackageAppDataStorage.get().acquire(pkg);
         ImageView iconView = (ImageView) findViewById(R.id.app_icon);
         iconView.setImageDrawable(appModel.icon);
         TextView nameView = (TextView) findViewById(R.id.app_name);
         nameView.setText(String.format(Locale.ENGLISH, "Opening %s...", appModel.name));
-        Intent intent = getIntent().getParcelableExtra(KEY_INTENT);
+        Intent intent = getIntent().getParcelableExtra(KEY_INTENT);//需要启动的activity
         if (intent == null) {
             return;
         }

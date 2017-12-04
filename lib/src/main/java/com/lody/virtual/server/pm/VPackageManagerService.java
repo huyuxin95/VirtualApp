@@ -275,14 +275,21 @@ public class VPackageManagerService extends IPackageManager.Stub {
         return flags;
     }
 
+    /**
+     * 验证userid是否存在
+     */
     private void checkUserId(int userId) {
         if (!VUserManagerService.get().exists(userId)) {
             throw new SecurityException("Invalid userId " + userId);
         }
     }
 
+    /**
+     * 根据传入的根据传入的packageName,targetActivity,生成ActivityInfo
+     */
     @Override
     public ActivityInfo getActivityInfo(ComponentName component, int flags, int userId) {
+        //验证userid是否存在
         checkUserId(userId);
         flags = updateFlagsNought(flags);
         synchronized (mPackages) {

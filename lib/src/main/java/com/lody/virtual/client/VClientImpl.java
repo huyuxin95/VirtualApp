@@ -156,16 +156,24 @@ public final class VClientImpl extends IVClient.Stub {
         mH.sendMessage(msg);
     }
 
+    /**
+     * 获取当前APP的主线程的ibinder对象
+     * @return
+     */
     @Override
     public IBinder getAppThread() {
         return ActivityThread.getApplicationThread.call(VirtualCore.mainThread());
     }
 
+    //ProcessRecord??
     @Override
     public IBinder getToken() {
         return token;
     }
 
+    /**
+     *  初始化进程
+     */
     public void initProcess(IBinder token, int vuid) {
         this.token = token;
         this.vuid = vuid;
@@ -193,6 +201,11 @@ public final class VClientImpl extends IVClient.Stub {
         }
     }
 
+    /**
+     * bindApplication
+     * @param packageName
+     * @param processName
+     */
     public void bindApplication(final String packageName, final String processName) {
         if (Looper.getMainLooper() == Looper.myLooper()) {
             bindApplicationNoCheck(packageName, processName, new ConditionVariable());

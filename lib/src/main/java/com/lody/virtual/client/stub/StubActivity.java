@@ -23,6 +23,7 @@ public abstract class StubActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		// The savedInstanceState's classLoader is not exist.
 		super.onCreate(null);
+		//当代理Activity启动完成后直接finish,
 		finish();
         // It seems that we have conflict with the other Android-Plugin-Framework.
 		Intent stubIntent = getIntent();

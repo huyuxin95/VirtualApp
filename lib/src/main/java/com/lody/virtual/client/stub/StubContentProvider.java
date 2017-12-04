@@ -15,7 +15,6 @@ import com.lody.virtual.helper.compat.BundleCompat;
 
 /**
  * @author Lody
- *
  */
 public class StubContentProvider extends ContentProvider {
 
@@ -32,8 +31,12 @@ public class StubContentProvider extends ContentProvider {
 		return null;
 	}
 
+	/**
+	 * 创建一个新的进程
+	 */
 	private Bundle initProcess(Bundle extras) {
 		ConditionVariable lock = VirtualCore.get().getInitLock();
+		//等待别的线程初始化好信息然后唤醒
 		if (lock != null) {
 			lock.block();
 		}

@@ -140,6 +140,7 @@ public class VActivityManagerService extends IActivityManager.Stub {
     @Override
     public int startActivity(Intent intent, ActivityInfo info, IBinder resultTo, Bundle options, String resultWho, int requestCode, int userId) {
         synchronized (this) {
+            //启动activity
             return mMainStack.startActivityLocked(userId, intent, info, resultTo, options, resultWho, requestCode);
         }
     }
@@ -698,6 +699,15 @@ public class VActivityManagerService extends IActivityManager.Stub {
     }
 
 
+    /**
+     * 处理子应用的相关实现
+     *
+     * 获取到对应子进程的ibinder引用,在这和其创建连接
+     * 设置远程StubContentProvider死亡回调、
+     * 分装数据到ProcessRecord等
+     * @param pid
+     * @param clientBinder
+     */
     private void attachClient(int pid, final IBinder clientBinder) {
         final IVClient client = IVClient.Stub.asInterface(clientBinder);
         if (client == null) {
@@ -729,6 +739,8 @@ public class VActivityManagerService extends IActivityManager.Stub {
         }
         try {
             final ProcessRecord record = app;
+
+            //为子进程的ibinder设置死亡代理
             clientBinder.linkToDeath(new DeathRecipient() {
                 @Override
                 public void binderDied() {
@@ -768,30 +780,40 @@ public class VActivityManagerService extends IActivityManager.Stub {
         }
     }
 
+    /**
+     * 获取对应包名的PackageSetting和ApplicationInfo对象
+     * 并初始化好进程信息
+     */
     ProcessRecord startProcessIfNeedLocked(String processName, int userId, String packageName) {
         if (VActivityManagerService.get().getFreeStubCount() < 3) {
             // run GC
             killAllApps();
         }
+        //PackageSetting,ApplicationInfo两个对象在双开应用安装时创建并保存
         PackageSetting ps = PackageCacheManager.getSetting(packageName);
         ApplicationInfo info = VPackageManagerService.get().getApplicationInfo(packageName, 0, userId);
         if (ps == null || info == null) {
             return null;
         }
         if (!ps.isLaunched(userId)) {
+            //发送首次启动广播
             sendFirstLaunchBroadcast(ps, userId);
             ps.setLaunched(userId, true);
             VAppManagerService.get().savePersistenceData();
         }
         int uid = VUserHandle.getUid(userId, ps.appId);
+        //判断目标进程是否已经创建过，如果存在返回对应的ProcessRecord
         ProcessRecord app = mProcessNames.get(processName, uid);
         if (app != null && app.client.asBinder().isBinderAlive()) {
             return app;
         }
+        //首次启动不存在继续调用queryFreeStubProcessLocked();获取现在还未占用的vpid
         int vpid = queryFreeStubProcessLocked();
         if (vpid == -1) {
             return null;
         }
+        //performStartProcessLocked(uid, vpid, info, processName)，在该函数中新建ProcessRecord对象
+        //并开启相应子线程的ContentProvider
         app = performStartProcessLocked(uid, vpid, info, processName);
         if (app != null) {
             app.pkgList.add(info.packageName);
@@ -799,6 +821,9 @@ public class VActivityManagerService extends IActivityManager.Stub {
         return app;
     }
 
+    /**
+     * 发送首次启动广播
+     */
     private void sendFirstLaunchBroadcast(PackageSetting ps, int userId) {
         Intent intent = new Intent(Intent.ACTION_PACKAGE_FIRST_LAUNCH, Uri.fromParts("package", ps.packageName, null));
         intent.setPackage(ps.packageName);
@@ -819,24 +844,35 @@ public class VActivityManagerService extends IActivityManager.Stub {
         return Process.myUid();
     }
 
+    /**
+     *启动了一个新的进程,并获取到其ProcessRecord封装的对象
+     */
     private ProcessRecord performStartProcessLocked(int vuid, int vpid, ApplicationInfo info, String processName) {
+        //新建ProcessRecord对象
         ProcessRecord app = new ProcessRecord(info, processName, vuid, vpid);
         Bundle extras = new Bundle();
         BundleCompat.putBinder(extras, "_VA_|_binder_", app);
         extras.putInt("_VA_|_vuid_", vuid);
         extras.putString("_VA_|_process_", processName);
         extras.putString("_VA_|_pkg_", info.packageName);
+        //启动新的ContentProvider
         Bundle res = ProviderCall.call(VASettings.getStubAuthority(vpid), "_VA_|_init_process_", null, extras);
         if (res == null) {
             return null;
         }
         int pid = res.getInt("_VA_|_pid_");
         IBinder clientBinder = BundleCompat.getBinder(res, "_VA_|_client_");
+        //设置远程StubContentProvider死亡回调、分装数据到ProcessRecord等。
         attachClient(pid, clientBinder);
         return app;
     }
 
+    /**
+     * 获取现在还未占用的vpid
+     * @return
+     */
     private int queryFreeStubProcessLocked() {
+        //一个循环遍历所有ProcessRecord查找还未使用的vpid
         for (int vpid = 0; vpid < VASettings.STUB_COUNT; vpid++) {
             int N = mPidsSelfLocked.size();
             boolean using = false;

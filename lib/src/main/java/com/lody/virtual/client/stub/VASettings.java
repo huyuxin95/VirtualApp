@@ -9,9 +9,9 @@ import java.util.Locale;
 public class VASettings {
     public static final String STUB_DEF_AUTHORITY = "virtual_stub_";
     public static final String ACTION_BADGER_CHANGE = "com.lody.virtual.BADGER_CHANGE";
-    public static String STUB_ACTIVITY = StubActivity.class.getName();
-    public static String STUB_DIALOG = StubDialog.class.getName();
-    public static String STUB_CP = StubContentProvider.class.getName();
+    public static String STUB_ACTIVITY = StubActivity.class.getName(); //获取子Activity的包名
+    public static String STUB_DIALOG = StubDialog.class.getName();  //获取dialog类型的Activity包名
+    public static String STUB_CP = StubContentProvider.class.getName();  //获取子ContentProvider的包名
     public static String STUB_JOB = StubJob.class.getName();
     public static String RESOLVER_ACTIVITY = ResolverActivity.class.getName();
     public static String STUB_CP_AUTHORITY = "virtual_stub_";
@@ -34,14 +34,25 @@ public class VASettings {
      */
     public static boolean ENABLE_IO_REDIRECT = true;
 
+    /**
+     *获取子应用Activity的包名
+     */
     public static String getStubActivityName(int index) {
         return String.format(Locale.ENGLISH, "%s$C%d", STUB_ACTIVITY, index);
     }
 
+    /**
+     *获取子应用Dialog类型Activity的包名
+     */
     public static String getStubDialogName(int index) {
         return String.format(Locale.ENGLISH, "%s$C%d", STUB_DIALOG, index);
     }
 
+    /**
+     * 获取子应用ContentProvider的包名
+     * @param index
+     * @return
+     */
     public static String getStubCP(int index) {
         return String.format(Locale.ENGLISH, "%s$C%d", STUB_CP, index);
     }

@@ -17,6 +17,7 @@ import java.io.Serializable;
 public class ProviderCall {
 
 	public static Bundle call(String authority, String methodName, String arg, Bundle bundle) {
+		//authority:   virtual_stub_(pid)
 		return call(authority, VirtualCore.get().getContext(), methodName, arg, bundle);
 	}
 
